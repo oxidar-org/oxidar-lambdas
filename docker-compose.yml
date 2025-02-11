@@ -1,14 +1,25 @@
 services:
- dynamodb-local:
-   command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-   image: "amazon/dynamodb-local:latest"
-   container_name: dynamodb-local
-   ports:
-     - "8000:8000"
-   volumes:
-     - "./docker/dynamodb:/home/dynamodblocal/data"
-   working_dir: /home/dynamodblocal
-   environment:
-     AWS_ACCESS_KEY_ID: 'DUMMYIDEXAMPLE'
-     AWS_SECRET_ACCESS_KEY: 'DUMMYEXAMPLEKEY'
-     REGION: 'eu-west-1'
+  redis:
+    container_name: oxidar-redis
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning # --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    # volumes:
+    #  - cache:/data
+
+  # https://github.com/murar8/local-jwks-server
+  local-jwks-server:
+      image: ghcr.io/murar8/local-jwks-server:latest
+      volumes:
+          # [OPTIONAL] Must contain a private key in PEM format.
+          # If no private key file is provided the server will generate
+          # a random key upon startup based on the provided configuration.
+          # The server configuration must match the private key format.
+          - ./jwks-private-key.pem:/etc/local-jwks-server/key.pem
+      ports:
+          - 8080:8080
+      # [OPTIONAL] Healthcheck command is configured by default.
+      healthcheck:
+          retries: 10

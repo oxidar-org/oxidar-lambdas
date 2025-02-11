@@ -1,0 +1,15 @@
+[package]
+name = "validate_jwt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lambda_runtime = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+redis = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+tracing-bunyan-formatter = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }

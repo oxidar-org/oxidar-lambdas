@@ -1,0 +1,11 @@
+[package]
+name = "add_jwts"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lambda_runtime = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+redis = { workspace = true }
+reqwest = { workspace = true }
