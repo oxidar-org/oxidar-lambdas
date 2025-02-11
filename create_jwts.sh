@@ -10,14 +10,24 @@ generate_random_email() {
 
 }
 
+get_rol() {
+    local roles=("admin" "super_user" "user" )
+    rol=${roles[$RANDOM % ${#roles[@]}]}
+
+    echo "$rol"
+}
+
+# rol -> url admitida
+
 for ((i=1; i<=20; i++)); do
     # Configuration
     SERVICE_URL="http://localhost:8080/jwt/sign"
 
     user=$(generate_random_email)
+    rol=$(get_rol)
 
     # Fetch data from the service
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{ \"sub\": \"$user\" }" $SERVICE_URL)
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "{ \"sub\": \"$user\", \"roles\": [\"$rol\"] }" $SERVICE_URL)
 
 
     # Extract value (assuming JSON response like { "key": "value" })
@@ -29,8 +39,8 @@ for ((i=1; i<=20; i++)); do
     if [[ -n "$value" && "$value" != "null" ]]; then
         # Store in Redis
         # redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" SET "$REDIS_KEY" "$value"
-        docker exec -t oxidar-redis redis-cli SET "$user" "$value"
-        echo "Stored in Redis: $user"
+        docker exec -t oxidar-redis redis-cli SET "$user" "$rol"
+        echo "Stored in Redis: $user -> $rol"
     else
         echo "Failed to extract value from response"
         exit 1

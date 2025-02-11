@@ -1,5 +1,9 @@
+mod error;
 mod generic_handler;
+mod models;
+
 use generic_handler::function_handler;
+use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{
     layers::{OpenTelemetryFaasTrigger, OpenTelemetryLayer as OtelLayer},
     tower, tracing, Error, Runtime,
@@ -12,6 +16,7 @@ use tracing_subscriber::{prelude::*, EnvFilter};
 
 pub struct PersistedMemory {
     redis_client: redis::Client,
+    jwks: JwkSet,
 }
 
 const DEFAULT_LOG_LEVEL: &str = "INFO";
@@ -40,8 +45,19 @@ async fn main() -> Result<(), Error> {
 
     tracing::info!("initializing lambda...");
 
+    let jwks: JwkSet = serde_json::from_str(
+        &reqwest::get("http://127.0.0.1:8080/.well-known/jwks.json")
+            .await
+            .expect("could not get JWKS")
+            .text()
+            .await
+            .expect("invalid jwks"),
+    )
+    .expect("unable to parse jwks");
+
     let persisted = PersistedMemory {
         redis_client: redis::Client::open("redis://127.0.0.1").expect("could not connect to redis"),
+        jwks,
     };
 
     // run(service_fn(|d| function_handler(d, &persisted))).await
@@ -55,6 +71,7 @@ async fn main() -> Result<(), Error> {
         // Set the "faas.trigger" attribute of the span to "pubsub"
         .with_trigger(OpenTelemetryFaasTrigger::Http),
     );
+
     runtime.run().await?;
     Ok(())
 }

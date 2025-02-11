@@ -1,14 +1,18 @@
+use jsonwebtoken::{
+    decode, decode_header, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
+};
 use lambda_runtime::{tracing, Error, LambdaEvent};
+use redis::{Commands, RedisError};
 use serde::{Deserialize, Serialize};
 
-use crate::PersistedMemory;
+use crate::{error::ErrorResponse, models::claims::Claims, PersistedMemory};
 
 /// This is a made-up example. Incoming messages come into the runtime as unicode
 /// strings in json format, which can map to any structure that implements `serde::Deserialize`
 /// The runtime pays no attention to the contents of the incoming message payload.
 #[derive(Deserialize)]
 pub(crate) struct IncomingMessage {
-    command: String,
+    token: String,
 }
 
 /// This is a made-up example of what an outgoing message structure may look like.
@@ -29,18 +33,43 @@ pub(crate) struct OutgoingMessage {
 pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
-) -> Result<OutgoingMessage, Error> {
-    // Extract some useful info from the request
-    let command = event.payload.command;
+) -> Result<(), ErrorResponse> {
+    // Decode the header
+    let header = decode_header(&event.payload.token)?;
 
-    // Prepare the outgoing message
-    let resp = OutgoingMessage {
-        req_id: event.context.request_id,
-        msg: format!("Command {}.", command),
-    };
+    // Get the Verifying key by its id
+    let kid = header.kid.ok_or(ErrorResponse::JwtKeyIdNotPresent)?;
 
-    // Return `OutgoingMessage` (it will be serialized to JSON automatically by the runtime)
-    Ok(resp)
+    // Get the key from the JWKS
+    if let Some(jwk) = persisted.jwks.find(&kid) {
+        let key = match &jwk.algorithm {
+            AlgorithmParameters::RSA(key) => &DecodingKey::from_rsa_components(&key.n, &key.e)?,
+            AlgorithmParameters::EllipticCurve(_) => todo!("elliptic curve not implemented"),
+            AlgorithmParameters::OctetKey(_) => todo!("octet key not implemented"),
+            AlgorithmParameters::OctetKeyPair(_) => {
+                todo!("octet key pair not implemented")
+            }
+        };
+
+        let token = decode::<Claims>(
+            &event.payload.token,
+            key,
+            &Validation::new(Algorithm::RS256),
+        )?;
+
+        println!("{token:?}")
+    } else {
+        return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
+    }
+
+    let mut redis = persisted.redis_client.get_connection()?;
+    let role: Option<String> = redis.get(&event.payload.token)?;
+
+    if let Some(role) = role {
+        Ok(())
+    } else {
+        Err(ErrorResponse::RoleNotFound)
+    }
 }
 
 #[cfg(test)]
