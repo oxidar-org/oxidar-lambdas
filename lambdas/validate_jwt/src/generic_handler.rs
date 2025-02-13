@@ -20,11 +20,6 @@ pub enum Response {
     Forbidden,
 }
 
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
-/// - https://github.com/aws-samples/serverless-rust-demo/
 pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
@@ -75,12 +70,12 @@ pub(crate) async fn function_handler(
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
     use lambda_runtime::{Context, LambdaEvent};
 
-    /*
     #[tokio::test]
     async fn test_generic_handler() {
         let event = LambdaEvent::new(
@@ -91,5 +86,6 @@ mod tests {
         );
         let response = function_handler(event).await.unwrap();
         assert_eq!(response.msg, "Command test.");
-    }*/
+    }
 }
+*/

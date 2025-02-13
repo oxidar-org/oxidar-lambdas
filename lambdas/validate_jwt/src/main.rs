@@ -2,7 +2,7 @@ mod error;
 mod generic_handler;
 mod models;
 
-use ::tracing::{initialize_tracing, otel_layer};
+use ::tracing_handler::{initialize_tracing, otel_layer};
 use generic_handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{tower, tracing, Error, Runtime};
