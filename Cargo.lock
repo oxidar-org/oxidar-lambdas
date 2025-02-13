@@ -420,7 +420,7 @@ dependencies = [
  "slab",
  "tokio",
  "tokio-util",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -548,7 +548,7 @@ dependencies = [
  "socket2",
  "tokio",
  "tower-service",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -763,7 +763,7 @@ dependencies = [
  "tokio-stream",
  "tower 0.4.13",
  "tower-layer",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -783,7 +783,7 @@ dependencies = [
  "tokio",
  "tower 0.4.13",
  "tower-service",
- "tracing",
+ "tracing 0.1.41",
  "tracing-subscriber",
 ]
 
@@ -989,7 +989,7 @@ dependencies = [
  "js-sys",
  "pin-project-lite",
  "thiserror 1.0.69",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -1016,7 +1016,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-stream",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -1734,7 +1734,7 @@ dependencies = [
  "pin-project-lite",
  "tower-layer",
  "tower-service",
- "tracing",
+ "tracing 0.1.41",
 ]
 
 [[package]]
@@ -1763,6 +1763,18 @@ name = "tower-service"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
+
+[[package]]
+name = "tracing"
+version = "0.1.0"
+dependencies = [
+ "lambda_runtime",
+ "opentelemetry",
+ "opentelemetry_sdk",
+ "tracing-bunyan-formatter",
+ "tracing-opentelemetry",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "tracing"
@@ -1799,7 +1811,7 @@ dependencies = [
  "serde",
  "serde_json",
  "time",
- "tracing",
+ "tracing 0.1.41",
  "tracing-core",
  "tracing-log 0.1.4",
  "tracing-subscriber",
@@ -1848,7 +1860,7 @@ dependencies = [
  "opentelemetry",
  "opentelemetry_sdk",
  "smallvec",
- "tracing",
+ "tracing 0.1.41",
  "tracing-core",
  "tracing-log 0.2.0",
  "tracing-subscriber",
@@ -1880,7 +1892,7 @@ dependencies = [
  "sharded-slab",
  "smallvec",
  "thread_local",
- "tracing",
+ "tracing 0.1.41",
  "tracing-core",
  "tracing-log 0.2.0",
  "tracing-serde",
@@ -1933,17 +1945,13 @@ version = "0.1.0"
 dependencies = [
  "jsonwebtoken",
  "lambda_runtime",
- "opentelemetry",
- "opentelemetry_sdk",
  "redis",
  "reqwest",
  "serde",
  "serde_json",
  "thiserror 2.0.11",
  "tokio",
- "tracing-bunyan-formatter",
- "tracing-opentelemetry",
- "tracing-subscriber",
+ "tracing 0.1.0",
 ]
 
 [[package]]
