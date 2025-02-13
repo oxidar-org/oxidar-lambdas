@@ -4,7 +4,6 @@ use serde::Deserialize;
 pub struct Claims {
     pub sub: String,
     pub roles: Vec<String>,
-    pub exp: u64,
 }
 
 #[derive(PartialEq, Deserialize, Debug)]

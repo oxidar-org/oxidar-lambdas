@@ -13,7 +13,6 @@ pub struct PersistedMemory {
     jwks: JwkSet,
 }
 
-const DEFAULT_LOG_LEVEL: &str = "INFO";
 const APP_NAME: &str = "lambda_test";
 
 #[tokio::main]
