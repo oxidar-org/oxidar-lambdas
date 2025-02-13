@@ -1,28 +1,23 @@
 use jsonwebtoken::{
     decode, decode_header, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
 };
-use lambda_runtime::{tracing, Error, LambdaEvent};
-use redis::{Commands, RedisError};
+use lambda_runtime::{tracing, LambdaEvent};
+use redis::Commands;
 use serde::{Deserialize, Serialize};
 
 use crate::{error::ErrorResponse, models::claims::Claims, PersistedMemory};
 
-/// This is a made-up example. Incoming messages come into the runtime as unicode
-/// strings in json format, which can map to any structure that implements `serde::Deserialize`
-/// The runtime pays no attention to the contents of the incoming message payload.
 #[derive(Deserialize)]
 pub(crate) struct IncomingMessage {
     token: String,
+    path: String,
 }
 
-/// This is a made-up example of what an outgoing message structure may look like.
-/// There is no restriction on what it can be. The runtime requires responses
-/// to be serialized into json. The runtime pays no attention
-/// to the contents of the outgoing message payload.
 #[derive(Serialize)]
-pub(crate) struct OutgoingMessage {
-    req_id: String,
-    msg: String,
+#[serde(untagged, rename = "snake_case")]
+pub enum Response {
+    AccessGranted,
+    Forbidden,
 }
 
 /// This is the main body for the function.
@@ -33,7 +28,7 @@ pub(crate) struct OutgoingMessage {
 pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
-) -> Result<(), ErrorResponse> {
+) -> Result<Response, ErrorResponse> {
     // Decode the header
     let header = decode_header(&event.payload.token)?;
 
@@ -41,7 +36,7 @@ pub(crate) async fn function_handler(
     let kid = header.kid.ok_or(ErrorResponse::JwtKeyIdNotPresent)?;
 
     // Get the key from the JWKS
-    if let Some(jwk) = persisted.jwks.find(&kid) {
+    let token = if let Some(jwk) = persisted.jwks.find(&kid) {
         let key = match &jwk.algorithm {
             AlgorithmParameters::RSA(key) => &DecodingKey::from_rsa_components(&key.n, &key.e)?,
             AlgorithmParameters::EllipticCurve(_) => todo!("elliptic curve not implemented"),
@@ -51,24 +46,32 @@ pub(crate) async fn function_handler(
             }
         };
 
-        let token = decode::<Claims>(
+        decode::<Claims>(
             &event.payload.token,
             key,
             &Validation::new(Algorithm::RS256),
-        )?;
-
-        println!("{token:?}")
+        )?
     } else {
         return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
-    }
+    };
 
     let mut redis = persisted.redis_client.get_connection()?;
-    let role: Option<String> = redis.get(&event.payload.token)?;
+    let path_is_permited: bool = redis.sismember(&token.claims.roles[0], &event.payload.path)?;
 
-    if let Some(role) = role {
-        Ok(())
+    if path_is_permited {
+        tracing::info!(
+            "{}: granting acess {}",
+            &token.claims.sub,
+            &event.payload.path
+        );
+        Ok(Response::AccessGranted)
     } else {
-        Err(ErrorResponse::RoleNotFound)
+        tracing::warn!(
+            "permission denied: the user {} is trying to access the restricted resource {}",
+            token.claims.sub,
+            &event.payload.path
+        );
+        Ok(Response::Forbidden)
     }
 }
 

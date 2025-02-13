@@ -2,12 +2,13 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct Claims {
-    sub: String,
-    roles: Vec<Role>,
+    pub sub: String,
+    pub roles: Vec<String>,
+    pub exp: u64,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "snake_case")]
+#[derive(PartialEq, Deserialize, Debug)]
+#[serde(untagged, rename = "snake_case")]
 pub enum Role {
     Admin,
     SuperUser,

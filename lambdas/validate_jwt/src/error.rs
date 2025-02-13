@@ -11,9 +11,6 @@ pub enum ErrorResponse {
     #[error("jwt key id not present in token")]
     JwtKeyIdNotPresent,
 
-    #[error("role not found")]
-    RoleNotFound,
-
     #[error("managing token: {0}")]
     ManagingToken(#[from] jsonwebtoken::errors::Error),
 
