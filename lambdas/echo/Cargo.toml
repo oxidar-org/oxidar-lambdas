@@ -1,0 +1,10 @@
+[package]
+name = "echo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lambda_runtime = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+tracing_handler = { workspace = true }

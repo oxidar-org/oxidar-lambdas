@@ -1,4 +1,4 @@
-use lambda_runtime::{run, tower, Error, Runtime};
+use lambda_runtime::{tower, Error, Runtime};
 mod handler;
 
 use ::tracing_handler::{initialize_tracing, otel_layer};

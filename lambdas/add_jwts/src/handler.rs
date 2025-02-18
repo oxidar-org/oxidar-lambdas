@@ -1,6 +1,6 @@
 use lambda_runtime::{tracing, Error, LambdaEvent};
 use redis::Commands;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::PersistedMemory;
 
@@ -8,12 +8,6 @@ use crate::PersistedMemory;
 pub(crate) struct IncomingMessage {
     role: String,
     path: String,
-}
-
-#[derive(Serialize)]
-pub(crate) struct OutgoingMessage {
-    req_id: String,
-    msg: String,
 }
 
 pub(crate) async fn function_handler(
@@ -29,24 +23,4 @@ pub(crate) async fn function_handler(
     redis.sadd(role, path)?;
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    /*
-    use super::*;
-    use lambda_runtime::{Context, LambdaEvent};
-
-    #[tokio::test]
-    async fn test_generic_handler() {
-        let event = LambdaEvent::new(
-            IncomingMessage {
-                command: "test".to_string(),
-            },
-            Context::default(),
-        );
-        let response = function_handler(event).await.unwrap();
-        assert_eq!(response.msg, "Command test.");
-    }
-    */
 }

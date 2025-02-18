@@ -208,6 +208,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "echo"
+version = "0.1.0"
+dependencies = [
+ "lambda_runtime",
+ "serde",
+ "tokio",
+ "tracing_handler",
+]
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"

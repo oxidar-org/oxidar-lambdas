@@ -1,8 +1,8 @@
 [workspace]
 members = ["lambdas/*", "tracing_handler"]
+resolver = "2"
 
 [workspace.package]
-name = "oxidar-lambdas"
 version = "0.1.0"
 edition = "2021"
 
