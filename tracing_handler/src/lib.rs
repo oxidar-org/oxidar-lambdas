@@ -12,9 +12,9 @@ pub fn initialize_tracing(app_name: &'static str) -> trace::TracerProvider {
 
     // Set up link between OpenTelemetry and tracing crate
     tracing_subscriber::registry()
-        .with(tracing_opentelemetry::OpenTelemetryLayer::new(
+        /*.with(tracing_opentelemetry::OpenTelemetryLayer::new(
             tracer_provider.tracer(app_name),
-        ))
+        ))*/
         .with(
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_LEVEL)),
         )
@@ -25,6 +25,7 @@ pub fn initialize_tracing(app_name: &'static str) -> trace::TracerProvider {
     tracer_provider
 }
 
+/*
 pub fn otel_layer(
     tracer_provider: &trace::TracerProvider,
 ) -> OtelLayer<impl Fn() + Clone + use<'_>> {
@@ -33,4 +34,4 @@ pub fn otel_layer(
     })
     // Set the "faas.trigger" attribute of the span to "pubsub"
     .with_trigger(OpenTelemetryFaasTrigger::Http)
-}
+}*/

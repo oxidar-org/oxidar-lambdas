@@ -1,7 +1,7 @@
 use lambda_runtime::{tower, Error, Runtime};
 mod handler;
 
-use ::tracing_handler::{initialize_tracing, otel_layer};
+use ::tracing_handler::initialize_tracing;
 use handler::function_handler;
 use tower::service_fn;
 
@@ -19,10 +19,11 @@ async fn main() -> Result<(), Error> {
         redis_client: redis::Client::open("redis://127.0.0.1").expect("could not connect to redis"),
     };
 
-    let runtime = Runtime::new(service_fn(|d| function_handler(d, &persisted)))
-        .layer(otel_layer(&tracing_provider));
-
+    /*
+        let runtime = Runtime::new(service_fn(|d| function_handler(d, &persisted)))
+            .layer(otel_layer(&tracing_provider));
     runtime.run().await?;
+    */
 
     Ok(())
 }

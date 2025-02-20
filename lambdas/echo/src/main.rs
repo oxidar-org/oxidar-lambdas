@@ -1,7 +1,8 @@
-use lambda_runtime::{tower, Error, Runtime};
+use lambda_http::{run, tower, Error, Response};
+mod error;
 mod handler;
 
-use ::tracing_handler::{initialize_tracing, otel_layer};
+use ::tracing_handler::initialize_tracing;
 use handler::function_handler;
 use tower::service_fn;
 
@@ -9,11 +10,15 @@ const LAMBDA_NAME: &str = "echo";
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let tracing_provider = initialize_tracing(LAMBDA_NAME);
+    initialize_tracing(LAMBDA_NAME);
 
-    let runtime = Runtime::new(service_fn(function_handler)).layer(otel_layer(&tracing_provider));
+    run(service_fn(|request| async {
+        let response = function_handler(request).await;
 
-    runtime.run().await?;
-
-    Ok(())
+        Ok::<lambda_http::Response<std::string::String>, Error>(match response {
+            Ok(r) => r,
+            Err(e) => Response::<String>::from(e),
+        })
+    }))
+    .await
 }
