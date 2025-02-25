@@ -2,10 +2,10 @@ mod error;
 mod generic_handler;
 mod models;
 
-use ::tracing_handler::{initialize_tracing, otel_layer};
+use ::tracing_handler::initialize_tracing;
 use generic_handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
-use lambda_runtime::{tower, tracing, Error, Runtime};
+use lambda_runtime::{run, tower, tracing, Error};
 use tower::service_fn;
 
 pub struct PersistedMemory {
@@ -17,7 +17,8 @@ const APP_NAME: &str = "lambda_test";
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let tracing_provider = initialize_tracing(APP_NAME);
+    //let tracing_provider = initialize_tracing(APP_NAME);
+    initialize_tracing(APP_NAME);
 
     tracing::info!("initializing lambda...");
 
@@ -36,11 +37,11 @@ async fn main() -> Result<(), Error> {
         jwks,
     };
 
-    // run(service_fn(|d| function_handler(d, &persisted))).await
+    run(service_fn(|d| function_handler(d, &persisted))).await
     // Initialize the Lambda runtime and add OpenTelemetry tracing
-    let runtime = Runtime::new(service_fn(|d| function_handler(d, &persisted)))
-        .layer(otel_layer(&tracing_provider));
+    // let runtime = Runtime::new(service_fn(|d| function_handler(d, &persisted)))
+    //    .layer(otel_layer(&tracing_provider));
 
-    runtime.run().await?;
-    Ok(())
+    //runtime.run().await?;
+    //Ok(())
 }

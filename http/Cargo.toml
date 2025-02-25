@@ -1,13 +1,9 @@
 [package]
-name = "echo"
+name = "http"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 lambda_http = { workspace = true }
-serde = { workspace = true }
 serde_json = { workspace = true }
-tokio = { workspace = true }
-tracing_handler = { workspace = true }
 thiserror = { workspace = true }
-http = { workspace = true }

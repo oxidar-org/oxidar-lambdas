@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-lambda_runtime = { workspace = true }
+lambda_http = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
 redis = { workspace = true }
 tracing_handler = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+http = { workspace = true }

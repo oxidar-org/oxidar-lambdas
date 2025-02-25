@@ -6,9 +6,12 @@ version = 4
 name = "add_jwts"
 version = "0.1.0"
 dependencies = [
- "lambda_runtime",
+ "http 0.1.0",
+ "lambda_http",
  "redis",
  "serde",
+ "serde_json",
+ "thiserror 2.0.11",
  "tokio",
  "tracing_handler",
 ]
@@ -109,7 +112,7 @@ checksum = "52ddb91585253ccc85be3f2e0d5635529efdeadaf8a1da3230b433d3bbe43648"
 dependencies = [
  "base64",
  "bytes",
- "http",
+ "http 1.2.0",
  "http-body",
  "http-serde",
  "query_map",
@@ -230,6 +233,7 @@ dependencies = [
 name = "echo"
 version = "0.1.0"
 dependencies = [
+ "http 0.1.0",
  "lambda_http",
  "serde",
  "serde_json",
@@ -446,7 +450,7 @@ dependencies = [
  "fnv",
  "futures-core",
  "futures-sink",
- "http",
+ "http 1.2.0",
  "indexmap",
  "slab",
  "tokio",
@@ -459,6 +463,15 @@ name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
+
+[[package]]
+name = "http"
+version = "0.1.0"
+dependencies = [
+ "lambda_http",
+ "serde_json",
+ "thiserror 2.0.11",
+]
 
 [[package]]
 name = "http"
@@ -478,7 +491,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1efedce1fb8e6913f23e0c92de8e62cd5b772a67e7b3946df930a62566c93184"
 dependencies = [
  "bytes",
- "http",
+ "http 1.2.0",
 ]
 
 [[package]]
@@ -489,7 +502,7 @@ checksum = "793429d76616a256bcb62c2a2ec2bed781c8307e797e2598c50010f2bee2544f"
 dependencies = [
  "bytes",
  "futures-util",
- "http",
+ "http 1.2.0",
  "http-body",
  "pin-project-lite",
 ]
@@ -500,7 +513,7 @@ version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f056c8559e3757392c8d091e796416e4649d8e49e88b8d76df6c002f05027fd"
 dependencies = [
- "http",
+ "http 1.2.0",
  "serde",
 ]
 
@@ -520,7 +533,7 @@ dependencies = [
  "futures-channel",
  "futures-util",
  "h2",
- "http",
+ "http 1.2.0",
  "http-body",
  "httparse",
  "itoa",
@@ -537,7 +550,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d191583f3da1305256f22463b9bb0471acad48a4e534a5218b9963e9c1f59b2"
 dependencies = [
  "futures-util",
- "http",
+ "http 1.2.0",
  "hyper",
  "hyper-util",
  "rustls",
@@ -572,7 +585,7 @@ dependencies = [
  "bytes",
  "futures-channel",
  "futures-util",
- "http",
+ "http 1.2.0",
  "http-body",
  "hyper",
  "pin-project-lite",
@@ -780,7 +793,7 @@ dependencies = [
  "encoding_rs",
  "futures",
  "futures-util",
- "http",
+ "http 1.2.0",
  "http-body",
  "http-body-util",
  "hyper",
@@ -805,7 +818,7 @@ dependencies = [
  "base64",
  "bytes",
  "futures",
- "http",
+ "http 1.2.0",
  "http-body",
  "http-body-util",
  "http-serde",
@@ -833,7 +846,7 @@ dependencies = [
  "bytes",
  "futures-channel",
  "futures-util",
- "http",
+ "http 1.2.0",
  "http-body",
  "http-body-util",
  "hyper",
@@ -1284,7 +1297,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http",
+ "http 1.2.0",
  "http-body",
  "http-body-util",
  "hyper",
