@@ -1,31 +1,36 @@
-#[macro_export]
-macro_rules! run {
-    ($f: expr, $persisted: ident, $input: ty) => {
-        lambda_http::run(lambda_http::tower::service_fn(
-            async |request: lambda_http::Request| {
-                use lambda_http::RequestPayloadExt;
-                let input: Result<Option<$input>, $crate::error::HttpError> = request
-                    .payload::<$input>()
-                    .map_err(|e| $crate::error::HttpError::InvalidRequestBody(format!("{e}")));
+use std::future::Future;
 
-                Ok::<lambda_http::Response<lambda_http::Body>, lambda_http::Error>(match input {
-                    Ok(None) => lambda_http::Response::<String>::from(
-                        $crate::error::HttpError::EmptyRequestBody,
-                    )
-                    .map(lambda_http::Body::Text),
-                    Ok(Some(input)) => {
-                        let response = $f(input, &($persisted)).await;
+use lambda_http::RequestPayloadExt;
+use lambda_http::{service_fn, Body, Error, Request, Response};
+use serde::de::DeserializeOwned;
 
-                        match response {
-                            Ok(r) => r.map(lambda_http::Body::from),
-                            Err(e) => (lambda_http::Response::<String>::from(e))
-                                .map(lambda_http::Body::Text),
-                        }
-                    }
-                    Err(e) => lambda_http::Response::<String>::from(e).map(lambda_http::Body::Text),
-                })
-            },
-        ))
-        .await
-    };
+use crate::error::HttpError;
+
+pub async fn run<'a, R, P, F, I, Fut>(f: F, persisted: &'a P) -> Result<(), Error>
+where
+    lambda_http::Body: From<R>,
+    P: Send + Sync,
+    I: DeserializeOwned + Send,
+    F: Fn(I, &'a P) -> Fut + Sync,
+    Fut: Future<Output = Result<Response<R>, HttpError>> + Send + Sync,
+{
+    lambda_http::run(service_fn(async |request: Request| {
+        let input: Result<Option<I>, HttpError> = request
+            .payload::<I>()
+            .map_err(|e| HttpError::InvalidRequestBody(format!("{e}")));
+
+        Ok::<lambda_http::Response<Body>, Error>(match input {
+            Ok(None) => Response::<String>::from(HttpError::EmptyRequestBody).map(Body::Text),
+            Ok(Some(input)) => {
+                let response = f(input, persisted).await;
+
+                match response {
+                    Ok(r) => r.map(Body::from),
+                    Err(e) => (Response::<String>::from(e)).map(Body::Text),
+                }
+            }
+            Err(e) => Response::<String>::from(e).map(Body::Text),
+        })
+    }))
+    .await
 }
