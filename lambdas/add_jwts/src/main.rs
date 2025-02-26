@@ -1,9 +1,11 @@
 mod handler;
+mod input;
 
 use ::tracing_handler::initialize_tracing;
 use handler::function_handler;
-use lambda_http::{run, tower, Body, Error, Response};
-use tower::service_fn;
+use http::run;
+use input::IncomingMessage;
+use lambda_http::Error;
 
 const LAMBDA_NAME: &str = "add_path";
 
@@ -19,13 +21,5 @@ async fn main() -> Result<(), Error> {
         redis_client: redis::Client::open("redis://127.0.0.1").expect("could not connect to redis"),
     };
 
-    run(service_fn(|request| async {
-        let response = function_handler(request, &persisted).await;
-
-        Ok::<lambda_http::Response<Body>, Error>(match response {
-            Ok(r) => r.map(Body::from),
-            Err(e) => (Response::<String>::from(e)).map(Body::Text),
-        })
-    }))
-    .await
+    run!(function_handler, persisted, IncomingMessage)
 }

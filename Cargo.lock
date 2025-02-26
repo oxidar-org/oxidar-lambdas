@@ -469,6 +469,7 @@ name = "http"
 version = "0.1.0"
 dependencies = [
  "lambda_http",
+ "serde",
  "serde_json",
  "thiserror 2.0.11",
 ]

@@ -1,10 +1,11 @@
-mod error;
 mod handler;
+mod input;
 
+use crate::handler::function_handler;
 use ::tracing_handler::initialize_tracing;
-use handler::function_handler;
-use lambda_http::{run, tower, Body, Error, Response};
-use tower::service_fn;
+use http::run;
+use input::IncomingMessage;
+use lambda_http::Error;
 
 const LAMBDA_NAME: &str = "echo";
 
@@ -12,13 +13,6 @@ const LAMBDA_NAME: &str = "echo";
 async fn main() -> Result<(), Error> {
     initialize_tracing(LAMBDA_NAME);
 
-    run(service_fn(|request| async {
-        let response = function_handler(request).await;
-
-        Ok::<lambda_http::Response<Body>, Error>(match response {
-            Ok(r) => r.map(Body::from),
-            Err(e) => (Response::<String>::from(e)).map(Body::Text),
-        })
-    }))
-    .await
+    let persisted = ();
+    run!(function_handler, persisted, IncomingMessage)
 }

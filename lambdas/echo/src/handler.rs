@@ -1,18 +1,14 @@
 use http::{error::HttpError, response::Json};
-use lambda_http::{http::StatusCode, tracing, Request, RequestPayloadExt, Response};
-use serde::Deserialize;
+use lambda_http::{http::StatusCode, tracing, Response};
 use serde_json::json;
 
-#[derive(Deserialize)]
-pub(crate) struct IncomingMessage {
-    message: String,
-}
+use crate::input::IncomingMessage;
 
-pub(crate) async fn function_handler(event: Request) -> Result<Response<Json>, HttpError> {
-    let IncomingMessage { message } = event
-        .payload::<IncomingMessage>()
-        .map_err(|e| HttpError::InvalidRequestBody(format!("{e}")))?
-        .ok_or(HttpError::EmptyRequestBody)?;
+pub(crate) async fn function_handler(
+    input: IncomingMessage,
+    _: &(),
+) -> Result<Response<Json>, HttpError> {
+    let IncomingMessage { message } = input;
 
     tracing::info!(r#"echoing {message}"#);
 
@@ -25,7 +21,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Json>, H
             })
             .into(),
         )
-        .map_err(|e| HttpError::Unknown(e.into()))?;
+        .map_err(|e| HttpError::Unknown(Box::new(e)))?;
 
     Ok(response)
 }

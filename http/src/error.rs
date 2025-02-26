@@ -10,7 +10,7 @@ pub enum HttpError {
     InvalidRequestBody(String),
 
     #[error("unknown error: {0:?}")]
-    Unknown(Box<dyn std::error::Error>),
+    Unknown(Box<dyn std::error::Error + Send>),
 }
 
 impl From<HttpError> for Response<String> {

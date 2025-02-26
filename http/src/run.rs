@@ -1,21 +1,31 @@
-use std::future::Future;
+#[macro_export]
+macro_rules! run {
+    ($f: expr, $persisted: ident, $input: ty) => {
+        lambda_http::run(lambda_http::tower::service_fn(
+            async |request: lambda_http::Request| {
+                use lambda_http::RequestPayloadExt;
+                let input: Result<Option<$input>, $crate::error::HttpError> = request
+                    .payload::<$input>()
+                    .map_err(|e| $crate::error::HttpError::InvalidRequestBody(format!("{e}")));
 
-use lambda_http::{lambda_runtime::streaming::Body, service_fn, Error, Request, Response};
+                Ok::<lambda_http::Response<lambda_http::Body>, lambda_http::Error>(match input {
+                    Ok(None) => lambda_http::Response::<String>::from(
+                        $crate::error::HttpError::EmptyRequestBody,
+                    )
+                    .map(lambda_http::Body::Text),
+                    Ok(Some(input)) => {
+                        let response = $f(input, &($persisted)).await;
 
-use crate::error::HttpError;
-
-/*
-pub async fn run<R: From<Body>, P>(
-    f: impl Fn(Request, &P) -> impl Future<Output = Result<Response<R>, HttpError>>,
-    persisted: &P,
-) -> Result<(), Error> {
-    lambda_http::run(service_fn(|request| async {
-        let response = f(request, &persisted).await;
-
-        Ok::<lambda_http::Response<Body>, Error>(match response {
-            Ok(r) => r.map(Body::from),
-            Err(e) => (Response::<String>::from(e)).map(Body::Text),
-        })
-    }))
-    .await
-}*/
+                        match response {
+                            Ok(r) => r.map(lambda_http::Body::from),
+                            Err(e) => (lambda_http::Response::<String>::from(e))
+                                .map(lambda_http::Body::Text),
+                        }
+                    }
+                    Err(e) => lambda_http::Response::<String>::from(e).map(lambda_http::Body::Text),
+                })
+            },
+        ))
+        .await
+    };
+}
