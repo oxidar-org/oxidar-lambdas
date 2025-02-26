@@ -51,7 +51,8 @@ pub(crate) async fn function_handler(
     };
 
     let mut redis = persisted.redis_client.get_connection()?;
-    let path_is_permited: bool = redis.sismember(&token.claims.roles[0], &event.payload.path)?;
+    let path_is_permited: bool =
+        redis.sismember(token.claims.roles[0].as_str(), &event.payload.path)?;
 
     if path_is_permited {
         tracing::info!(
