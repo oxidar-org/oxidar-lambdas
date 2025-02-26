@@ -1,5 +1,5 @@
 [package]
-name = "add_jwts"
+name = "add_path"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,3 +12,7 @@ tracing_handler = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 http = { workspace = true }
+envy = { workspace = true }
+
+[package.metadata.lambda.env]
+REDIS_URL = "redis://127.0.0.1"

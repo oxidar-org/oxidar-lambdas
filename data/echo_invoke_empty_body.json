@@ -1,6 +1,6 @@
 {
 	"resource": "/{proxy+}",
-	"path": "/hello/world",
+	"path": "/echo",
 	"httpMethod": "POST",
 	"headers": {
 		"Accept": "*/*",

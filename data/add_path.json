@@ -1,6 +1,6 @@
 {
 	"resource": "/{proxy+}",
-	"path": "/echo",
+	"path": "/admin",
 	"httpMethod": "POST",
 	"headers": {
 		"Accept": "*/*",
@@ -131,5 +131,5 @@
 		"requestTimeEpoch": 1589522469693,
 		"apiId": "gy415nuibc"
 	},
-	"body": "{\r\n\t\"foo\": \"bar\"\r\n}"
+	"body": "{\r\n\t\"role\": \"super_user\",\r\n\t\"path\": \"/admin\"\r\n}"
 }

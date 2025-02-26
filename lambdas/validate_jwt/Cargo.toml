@@ -13,4 +13,9 @@ serde_json = { workspace = true }
 tokio = { workspace = true }
 thiserror = { workspace = true }
 tracing_handler = { workspace = true }
+envy = { workspace = true }
+
+[package.metadata.lambda.env]
+REDIS_URL = "redis://127.0.0.1"
+JWKS_URL = "http://127.0.0.1:8080/.well-known/jwks.json"
 

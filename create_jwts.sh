@@ -50,6 +50,6 @@ done
 
 
 # docker exec -t oxidar-redis redis-cli SET "/admin" "$rol"
-docker exec -t oxidar-redis redis-cli SADD "admin" "/admin" "/superuser" "/normal"
-docker exec -t oxidar-redis redis-cli SADD "super_user" "/superuser" "/normal"
-docker exec -t oxidar-redis redis-cli SADD "user" "/normal"
+docker exec -t oxidar-redis redis-cli SADD "admin" "/admin" "/echo"
+docker exec -t oxidar-redis redis-cli SADD "super_user" "/echo"
+docker exec -t oxidar-redis redis-cli SADD "user" "/echo"

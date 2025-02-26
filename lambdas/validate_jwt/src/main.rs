@@ -1,8 +1,10 @@
+mod config;
 mod error;
 mod generic_handler;
 mod models;
 
 use ::tracing_handler::initialize_tracing;
+use config::Config;
 use generic_handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{run, tower, tracing, Error};
@@ -22,8 +24,10 @@ async fn main() -> Result<(), Error> {
 
     tracing::info!("initializing lambda...");
 
+    let config = envy::from_env::<Config>().expect("unable to load configuration");
+
     let jwks: JwkSet = serde_json::from_str(
-        &reqwest::get("http://127.0.0.1:8080/.well-known/jwks.json")
+        &reqwest::get(config.jwks_url.to_string())
             .await
             .expect("could not get JWKS")
             .text()
@@ -33,7 +37,8 @@ async fn main() -> Result<(), Error> {
     .expect("unable to parse jwks");
 
     let persisted = PersistedMemory {
-        redis_client: redis::Client::open("redis://127.0.0.1").expect("could not connect to redis"),
+        redis_client: redis::Client::open(config.redis_url.to_string())
+            .expect("could not connect to redis"),
         jwks,
     };
 
