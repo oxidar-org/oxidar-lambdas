@@ -1,0 +1,10 @@
+[package]
+name = "jwks"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lambda_http = { workspace = true }
+tokio = { workspace = true }
+tracing_handler = { workspace = true }
+http = { workspace = true }
