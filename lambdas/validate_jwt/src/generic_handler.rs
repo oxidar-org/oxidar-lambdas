@@ -8,9 +8,19 @@ use serde::{Deserialize, Serialize};
 use crate::{error::ErrorResponse, models::claims::Claims, PersistedMemory};
 
 #[derive(Deserialize)]
+struct Headers {
+    #[serde(
+        alias = "Authorization",
+        alias = "AUTHORIZATION",
+        alias = "Authorization"
+    )]
+    authorization: String,
+}
+
+#[derive(Deserialize)]
 pub(crate) struct IncomingMessage {
-    token: String,
     path: String,
+    headers: Headers,
 }
 
 #[derive(Serialize)]
@@ -24,8 +34,9 @@ pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
 ) -> Result<Response, ErrorResponse> {
+    let jwt = &event.payload.headers.authorization;
     // Decode the header
-    let header = decode_header(&event.payload.token)?;
+    let header = decode_header(jwt)?;
 
     // Get the Verifying key by its id
     let kid = header.kid.ok_or(ErrorResponse::JwtKeyIdNotPresent)?;
@@ -41,11 +52,7 @@ pub(crate) async fn function_handler(
             }
         };
 
-        decode::<Claims>(
-            &event.payload.token,
-            key,
-            &Validation::new(Algorithm::RS256),
-        )?
+        decode::<Claims>(jwt, key, &Validation::new(Algorithm::RS256))?
     } else {
         return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
     };

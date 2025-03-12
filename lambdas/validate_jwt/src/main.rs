@@ -43,10 +43,4 @@ async fn main() -> Result<(), Error> {
     };
 
     run(service_fn(|d| function_handler(d, &persisted))).await
-    // Initialize the Lambda runtime and add OpenTelemetry tracing
-    // let runtime = Runtime::new(service_fn(|d| function_handler(d, &persisted)))
-    //    .layer(otel_layer(&tracing_provider));
-
-    //runtime.run().await?;
-    //Ok(())
 }
