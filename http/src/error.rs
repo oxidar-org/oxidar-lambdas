@@ -27,6 +27,7 @@ impl From<HttpError> for Response<String> {
                     .to_string(),
                 )
                 .unwrap(),
+
             HttpError::Unknown(error) => {
                 tracing::error!("unknown error ocurred: {error}");
 

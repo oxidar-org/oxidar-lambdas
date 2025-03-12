@@ -6,8 +6,6 @@ get_path() {
     echo "$path"
 }
 
-
-
 for ((i=1; i<=200; i++)); do
     user=$(awk -v seed=$RANDOM 'BEGIN {srand(seed)} {lines[++count] = $0} END {print lines[int(rand() * count) + 1]}' users.txt)
     email=$(echo $user | cut -d '|' -f1)
@@ -15,5 +13,3 @@ for ((i=1; i<=200; i++)); do
 
     cargo lambda invoke validate_jwt  --data-ascii "{ \"token\": \"$token\", \"path\": \"$(get_path)\" }"
 done
-
-
