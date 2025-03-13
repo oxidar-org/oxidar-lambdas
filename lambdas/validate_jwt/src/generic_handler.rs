@@ -1,11 +1,20 @@
+use std::time::Duration;
+
 use jsonwebtoken::{
     decode, decode_header, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
 };
 use lambda_runtime::{tracing, LambdaEvent};
 use redis::Commands;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use crate::{error::ErrorResponse, models::claims::Claims, PersistedMemory};
+use crate::{
+    error::ErrorResponse,
+    models::{
+        claims::Claims,
+        response::{Effect, Response},
+    },
+    PersistedMemory,
+};
 
 #[derive(Deserialize)]
 struct Headers {
@@ -18,23 +27,20 @@ struct Headers {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct IncomingMessage {
     path: String,
     headers: Headers,
-}
-
-#[derive(Serialize)]
-#[serde(untagged, rename = "snake_case")]
-pub enum Response {
-    AccessGranted,
-    Forbidden,
+    method_arn: String,
 }
 
 pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
-) -> Result<Response, ErrorResponse> {
+) -> Result<String, ErrorResponse> {
     let jwt = &event.payload.headers.authorization;
+
+    tracing::info!("processing {jwt}...");
     // Decode the header
     let header = decode_header(jwt)?;
 
@@ -57,25 +63,35 @@ pub(crate) async fn function_handler(
         return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
     };
 
-    let mut redis = persisted.redis_client.get_connection()?;
+    let mut redis = persisted
+        .redis_client
+        .get_connection_with_timeout(Duration::from_secs(5))?;
     let path_is_permited: bool =
         redis.sismember(token.claims.roles[0].as_str(), &event.payload.path)?;
 
-    if path_is_permited {
+    let effect = if path_is_permited {
         tracing::info!(
             "{}: granting acess {}",
             &token.claims.sub,
             &event.payload.path
         );
-        Ok(Response::AccessGranted)
+        Effect::Allow
     } else {
         tracing::warn!(
             "permission denied: the user {} is trying to access the restricted resource {}",
             token.claims.sub,
             &event.payload.path
         );
-        Ok(Response::Forbidden)
-    }
+
+        Effect::Deny
+    };
+
+    println!("5");
+    Ok(Response::with_params(
+        effect,
+        event.payload.method_arn,
+        token.claims.sub,
+    ))
 }
 
 /*

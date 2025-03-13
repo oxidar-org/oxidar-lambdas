@@ -24,8 +24,10 @@ async fn main() -> Result<(), Error> {
 
     tracing::info!("initializing lambda...");
 
+    tracing::info!("loading configuration...");
     let config = envy::from_env::<Config>().expect("unable to load configuration");
 
+    tracing::info!("retrieving JWKS...");
     let jwks: JwkSet = serde_json::from_str(
         &reqwest::get(config.jwks_url.to_string())
             .await
@@ -36,11 +38,22 @@ async fn main() -> Result<(), Error> {
     )
     .expect("unable to parse jwks");
 
+    tracing::info!("creating redis client...");
     let persisted = PersistedMemory {
         redis_client: redis::Client::open(config.redis_url.to_string())
             .expect("could not connect to redis"),
         jwks,
     };
 
-    run(service_fn(|d| function_handler(d, &persisted))).await
+    tracing::info!("listening for requests...");
+    run(service_fn(|d| async {
+        match function_handler(d, &persisted).await {
+            Ok(r) => Ok(r),
+            Err(e) => {
+                tracing::error!("{e}");
+                Err(e)
+            }
+        }
+    }))
+    .await
 }

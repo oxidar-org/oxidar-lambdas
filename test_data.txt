@@ -1,0 +1,7 @@
+{
+  "path": "/add_path",
+  "headers": {
+    "Authorization": "<token>"
+  },
+  "methodArn": "arn"
+}
