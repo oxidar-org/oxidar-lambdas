@@ -1,11 +1,11 @@
 mod config;
 mod error;
-mod generic_handler;
+mod handler;
 mod models;
 
 use ::tracing_handler::initialize_tracing;
 use config::Config;
-use generic_handler::function_handler;
+use handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{run, tower, tracing, Error};
 use tower::service_fn;
@@ -46,14 +46,5 @@ async fn main() -> Result<(), Error> {
     };
 
     tracing::info!("listening for requests...");
-    run(service_fn(|d| async {
-        match function_handler(d, &persisted).await {
-            Ok(r) => Ok(r),
-            Err(e) => {
-                tracing::error!("{e}");
-                Err(e)
-            }
-        }
-    }))
-    .await
+    run(service_fn(|d| function_handler(d, &persisted))).await
 }

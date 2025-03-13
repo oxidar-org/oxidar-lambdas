@@ -37,10 +37,40 @@ pub(crate) struct IncomingMessage {
 pub(crate) async fn function_handler(
     event: LambdaEvent<IncomingMessage>,
     persisted: &PersistedMemory,
-) -> Result<String, ErrorResponse> {
-    let jwt = &event.payload.headers.authorization;
+) -> Result<serde_json::Value, ErrorResponse> {
+    match validate_jwt(&event.payload, persisted).await {
+        Ok(r) => Ok(r),
+        Err(e) => match e {
+            ErrorResponse::InvalidJwt(_)
+            | ErrorResponse::ManagingToken(_)
+            | ErrorResponse::JwtKeyNotFoundInJwks(_)
+            | ErrorResponse::JwtKeyIdNotPresent => {
+                tracing::warn!("{e}");
+                Ok(Response::with_params(
+                    Effect::Deny,
+                    &event.payload.method_arn,
+                    "user",
+                ))
+            }
+            ErrorResponse::CacheError(_) => {
+                tracing::error!("{e}");
+                Err(e)
+            }
+        },
+    }
+}
 
-    tracing::info!("processing {jwt}...");
+async fn validate_jwt(
+    event: &IncomingMessage,
+    persisted: &PersistedMemory,
+) -> Result<serde_json::Value, ErrorResponse> {
+    let IncomingMessage {
+        path,
+        headers,
+        method_arn,
+    } = event;
+    let jwt = &headers.authorization;
+
     // Decode the header
     let header = decode_header(jwt)?;
 
@@ -66,32 +96,22 @@ pub(crate) async fn function_handler(
     let mut redis = persisted
         .redis_client
         .get_connection_with_timeout(Duration::from_secs(5))?;
-    let path_is_permited: bool =
-        redis.sismember(token.claims.roles[0].as_str(), &event.payload.path)?;
+    let path_is_permited: bool = redis.sismember(token.claims.roles[0].as_str(), path)?;
 
     let effect = if path_is_permited {
-        tracing::info!(
-            "{}: granting acess {}",
-            &token.claims.sub,
-            &event.payload.path
-        );
+        tracing::info!("{}: granting acess {}", &token.claims.sub, path);
         Effect::Allow
     } else {
         tracing::warn!(
             "permission denied: the user {} is trying to access the restricted resource {}",
             token.claims.sub,
-            &event.payload.path
+            path
         );
 
         Effect::Deny
     };
 
-    println!("5");
-    Ok(Response::with_params(
-        effect,
-        event.payload.method_arn,
-        token.claims.sub,
-    ))
+    Ok(Response::with_params(effect, method_arn, &token.claims.sub))
 }
 
 /*

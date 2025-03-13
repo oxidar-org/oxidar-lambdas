@@ -17,8 +17,7 @@ impl Effect {
 pub struct Response;
 
 impl Response {
-    pub fn with_params(effect: Effect, resource: String, principal_id: String) -> String {
-        /*
+    pub fn with_params(effect: Effect, resource: &str, principal_id: &str) -> serde_json::Value {
         json!({
               "principalId": principal_id,
               "policyDocument": {
@@ -33,22 +32,5 @@ impl Response {
               }
             }
         )
-        .to_string()
-        */
-        json!({
-              "principalId": "user",
-              "policyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [
-                  {
-                    "Action": "execute-api:Invoke",
-                    "Effect": effect.as_str(),
-                    "Resource": "*",
-                  }
-                ]
-              }
-            }
-        )
-        .to_string()
     }
 }
