@@ -1,0 +1,8 @@
+[build]
+arm64 = true
+release = true
+
+[production.deploy]
+memory = 128
+role = "arn:aws:iam::619071353885:role/lambda-execution-role"
+
