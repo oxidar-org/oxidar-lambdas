@@ -1,10 +1,8 @@
-use std::time::Duration;
-
 use jsonwebtoken::{
     decode, decode_header, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
 };
 use lambda_runtime::{tracing, LambdaEvent};
-use redis::Commands;
+use redis::AsyncCommands;
 use serde::Deserialize;
 
 use crate::{
@@ -93,10 +91,11 @@ async fn validate_jwt(
         return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
     };
 
-    let mut redis = persisted
-        .redis_client
-        .get_connection_with_timeout(Duration::from_secs(5))?;
-    let path_is_permited: bool = redis.sismember(token.claims.roles[0].as_str(), path)?;
+    let path_is_permited: bool = persisted
+        .redis
+        .clone()
+        .sismember(token.claims.roles[0].as_str(), path)
+        .await?;
 
     let effect = if path_is_permited {
         tracing::info!("{}: granting acess {}", &token.claims.sub, path);

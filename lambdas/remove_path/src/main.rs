@@ -7,11 +7,12 @@ use config::Config;
 use handler::function_handler;
 use http::run::run;
 use lambda_http::Error;
+use redis::aio::ConnectionManager;
 
 const LAMBDA_NAME: &str = "add_path";
 
 pub struct PersistedMemory {
-    redis_client: redis::Client,
+    redis: ConnectionManager,
 }
 
 #[tokio::main]
@@ -20,9 +21,13 @@ async fn main() -> Result<(), Error> {
 
     let config = envy::from_env::<Config>().expect("unable to load configuration");
 
-    let persisted = PersistedMemory {
-        redis_client: redis::Client::open(config.redis_url).expect("could not connect to redis"),
-    };
+    let redis = redis::Client::open(config.redis_url.to_string())
+        .expect("could create redis client")
+        .get_connection_manager()
+        .await
+        .expect("could not create connection manager");
+
+    let persisted = PersistedMemory { redis };
 
     run(function_handler, &persisted).await
 }

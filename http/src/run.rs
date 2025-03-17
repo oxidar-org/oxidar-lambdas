@@ -12,7 +12,7 @@ where
     P: Send + Sync,
     I: DeserializeOwned + Send,
     F: Fn(I, &'a P) -> Fut + Sync,
-    Fut: Future<Output = Result<Response<R>, HttpError>> + Send + Sync,
+    Fut: Future<Output = Result<Response<R>, HttpError>> + Send,
 {
     lambda_http::run(service_fn(async |request: Request| {
         let input: Result<Option<I>, HttpError> = request

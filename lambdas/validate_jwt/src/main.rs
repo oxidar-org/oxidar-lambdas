@@ -8,10 +8,11 @@ use config::Config;
 use handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{run, tower, tracing, Error};
+use redis::aio::ConnectionManager;
 use tower::service_fn;
 
 pub struct PersistedMemory {
-    redis_client: redis::Client,
+    redis: ConnectionManager,
     jwks: JwkSet,
 }
 
@@ -27,6 +28,14 @@ async fn main() -> Result<(), Error> {
     tracing::info!("loading configuration...");
     let config = envy::from_env::<Config>().expect("unable to load configuration");
 
+    tracing::info!("initializing redis");
+
+    let redis_connection_manager = redis::Client::open(config.redis_url.to_string())
+        .expect("could create redis client")
+        .get_connection_manager()
+        .await
+        .expect("could not create connection manager");
+
     tracing::info!("retrieving JWKS...");
     let jwks: JwkSet = serde_json::from_str(
         &reqwest::get(config.jwks_url.to_string())
@@ -40,8 +49,7 @@ async fn main() -> Result<(), Error> {
 
     tracing::info!("creating redis client...");
     let persisted = PersistedMemory {
-        redis_client: redis::Client::open(config.redis_url.to_string())
-            .expect("could not connect to redis"),
+        redis: redis_connection_manager,
         jwks,
     };
 
