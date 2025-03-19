@@ -17,6 +17,7 @@ envy = { workspace = true }
 
 [dev-dependencies]
 rustls = { workspace = true }
+redis-test = { workspace = true }
 
 [package.metadata.lambda.env]
 REDIS_URL = "redis://127.0.0.1"

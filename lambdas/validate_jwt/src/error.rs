@@ -1,6 +1,7 @@
 use lambda_runtime::Diagnostic;
 
 #[derive(thiserror::Error, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 pub enum ErrorResponse {
     #[error("invalid jwt: {0}")]
     InvalidJwt(String),

@@ -8,11 +8,11 @@ use config::Config;
 use handler::function_handler;
 use jsonwebtoken::jwk::JwkSet;
 use lambda_runtime::{run, tower, tracing, Error};
-use redis::aio::ConnectionManager;
+use redis::aio::ConnectionLike;
 use tower::service_fn;
 
-pub struct PersistedMemory {
-    redis: ConnectionManager,
+pub struct PersistedMemory<R: ConnectionLike> {
+    redis: R,
     jwks: JwkSet,
 }
 
