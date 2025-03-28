@@ -8,7 +8,7 @@ use serde::Deserialize;
 use crate::{
     error::ErrorResponse,
     models::{
-        claims::Claims,
+        claims::{Claims, Role},
         response::{Effect, Response},
     },
     PersistedMemory,
@@ -73,7 +73,7 @@ where
         headers,
         method_arn,
     } = event;
-    let jwt = &headers.authorization;
+    let jwt = &headers.authorization[7..];
 
     // Decode the header
     let header = decode_header(jwt)?;
@@ -96,6 +96,14 @@ where
     } else {
         return Err(ErrorResponse::JwtKeyNotFoundInJwks(kid));
     };
+
+    if token.claims.roles[0] == Role::Admin {
+        return Ok(Response::with_params(
+            Effect::Allow,
+            method_arn,
+            &token.claims.sub,
+        ));
+    }
 
     let path_is_permited: bool = persisted
         .redis

@@ -8,7 +8,7 @@ edition = "2024"
 
 [workspace.dependencies]
 lambda_runtime = { version = "0.13.0", features = ["opentelemetry"] }
-lambda_http = "0.14.0"
+lambda_http = { version = "0.14.0", default-features = false, features = ["apigw_rest", "tracing"] }
 envy = "0.4.2"
 redis = { version = "0.29", features = ["tls-rustls", "connection-manager", "tokio-rustls-comp"] }
 serde = "1"

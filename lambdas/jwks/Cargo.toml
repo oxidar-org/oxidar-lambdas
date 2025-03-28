@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-lambda_http = { workspace = true }
+lambda_http = { workspace = true, default-features = true }
 tokio = { workspace = true }
 tracing_handler = { workspace = true }
 http = { workspace = true }

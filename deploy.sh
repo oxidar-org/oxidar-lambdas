@@ -3,7 +3,7 @@ cargo lambda build
 
 ENV_REDIS_URL="rediss://lambda-demo-permissions-x3duz1.serverless.sae1.cache.amazonaws.com:6379"
 ENV_JWKS_URL="https://hkpktejt2fjgm4to4ihskvuiha0uxxau.lambda-url.sa-east-1.on.aws/"
-RUST_LOG="WARN"
+RUST_LOG="INFO"
 
 echo "deploying add_path lambda..."
 cargo lambda deploy add_path \
