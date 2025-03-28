@@ -35,7 +35,7 @@ for ((i=1; i<=20; i++)); do
     # Extract value (assuming JSON response like { "key": "value" })
     value=$(echo "$response" | jq -r '.jwt')
 
-    echo "$user|$value" >> users.txt
+    echo "$user|$value|$rol" >> users.txt
 
     # Check if value is valid
     if [[ -n "$value" && "$value" != "null" ]]; then
