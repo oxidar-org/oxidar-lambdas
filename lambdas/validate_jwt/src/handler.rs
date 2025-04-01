@@ -145,7 +145,7 @@ mod tests {
 
     #[tokio::test]
     async fn err_jwt_key_not_found_in_jwks() {
-        const INVALID_KID_JWT: &str = "ewogICJhbGciOiAiUlMyNTYiLAogICJraWQiOiAiaW52YWxpZF9raWQiLAogICJ0eXAiOiAiSldUIgp9.eyJleHAiOjE3NDIyNDIzNjgsInJvbGVzIjpbInN1cGVyX3VzZXIiXSwic3ViIjoibmRyd2ZnbHZtaUBnbWFpbC5jb20ifQ.wfYlJQqGaiEEHviYau_QK1VHbiPA3Vi6EKEbpidC2hLe0aJ-ICKSYf5FPXxKebI_Yy9I0mHFAHo4BrYy4IoAtgbXMfRUGf1M36cIU4yI1pAu-ECGopgj7flIw1azajh-Xf1JuxlyhFDOyM_FIOqxt_dJm5ZA3t9O-hRVCzKOCrRYRRzDHv1cqJOSPaUmdNW0GTad1oK5eipbBB3k9Rug80aMGamV8szpFxaG1Om92lSNDmeXKPsdFRuHDW9-_AOgrDeeh_zyv-dLN27Q_jN8l0NKg8q8V8WGeIzkITt4kKTp6tYwk5K8sFMCxhLTvuQGvlUaKWEpS_lIZdlasultwA";
+        const INVALID_KID_JWT: &str = "Bearer ewogICJhbGciOiAiUlMyNTYiLAogICJraWQiOiAiaW52YWxpZF9raWQiLAogICJ0eXAiOiAiSldUIgp9.eyJleHAiOjE3NDIyNDIzNjgsInJvbGVzIjpbInN1cGVyX3VzZXIiXSwic3ViIjoibmRyd2ZnbHZtaUBnbWFpbC5jb20ifQ.wfYlJQqGaiEEHviYau_QK1VHbiPA3Vi6EKEbpidC2hLe0aJ-ICKSYf5FPXxKebI_Yy9I0mHFAHo4BrYy4IoAtgbXMfRUGf1M36cIU4yI1pAu-ECGopgj7flIw1azajh-Xf1JuxlyhFDOyM_FIOqxt_dJm5ZA3t9O-hRVCzKOCrRYRRzDHv1cqJOSPaUmdNW0GTad1oK5eipbBB3k9Rug80aMGamV8szpFxaG1Om92lSNDmeXKPsdFRuHDW9-_AOgrDeeh_zyv-dLN27Q_jN8l0NKg8q8V8WGeIzkITt4kKTp6tYwk5K8sFMCxhLTvuQGvlUaKWEpS_lIZdlasultwA";
         let event = LambdaEvent {
             payload: IncomingMessage {
                 path: "/some_path".to_string(),
@@ -169,7 +169,7 @@ mod tests {
 
     #[tokio::test]
     async fn err_jwt_kid_key_in_header_not_found() {
-        const INVALID_KID_JWT: &str = "ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.eyJleHAiOjE3NDIyNDIzNjgsInJvbGVzIjpbInN1cGVyX3VzZXIiXSwic3ViIjoibmRyd2ZnbHZtaUBnbWFpbC5jb20ifQ.wfYlJQqGaiEEHviYau_QK1VHbiPA3Vi6EKEbpidC2hLe0aJ-ICKSYf5FPXxKebI_Yy9I0mHFAHo4BrYy4IoAtgbXMfRUGf1M36cIU4yI1pAu-ECGopgj7flIw1azajh-Xf1JuxlyhFDOyM_FIOqxt_dJm5ZA3t9O-hRVCzKOCrRYRRzDHv1cqJOSPaUmdNW0GTad1oK5eipbBB3k9Rug80aMGamV8szpFxaG1Om92lSNDmeXKPsdFRuHDW9-_AOgrDeeh_zyv-dLN27Q_jN8l0NKg8q8V8WGeIzkITt4kKTp6tYwk5K8sFMCxhLTvuQGvlUaKWEpS_lIZdlasultwA";
+        const INVALID_KID_JWT: &str = "Bearer ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.eyJleHAiOjE3NDIyNDIzNjgsInJvbGVzIjpbInN1cGVyX3VzZXIiXSwic3ViIjoibmRyd2ZnbHZtaUBnbWFpbC5jb20ifQ.wfYlJQqGaiEEHviYau_QK1VHbiPA3Vi6EKEbpidC2hLe0aJ-ICKSYf5FPXxKebI_Yy9I0mHFAHo4BrYy4IoAtgbXMfRUGf1M36cIU4yI1pAu-ECGopgj7flIw1azajh-Xf1JuxlyhFDOyM_FIOqxt_dJm5ZA3t9O-hRVCzKOCrRYRRzDHv1cqJOSPaUmdNW0GTad1oK5eipbBB3k9Rug80aMGamV8szpFxaG1Om92lSNDmeXKPsdFRuHDW9-_AOgrDeeh_zyv-dLN27Q_jN8l0NKg8q8V8WGeIzkITt4kKTp6tYwk5K8sFMCxhLTvuQGvlUaKWEpS_lIZdlasultwA";
         let event = LambdaEvent {
             payload: IncomingMessage {
                 path: "/some_path".to_string(),
