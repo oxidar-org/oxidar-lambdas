@@ -34,5 +34,6 @@ for ((i=1; i<=200; i++)); do
         -H "Content-Type: application/json" -d '{ "message": "Holaa" }'
 
     echo ""
+    sleep .2
 done
 
